@@ -4,6 +4,7 @@ const browser = await chromium.launch({
   executablePath: 'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
   headless: true,
 });
+const siteUrl = process.env.SITE_URL || 'http://127.0.0.1:4173';
 const failures = [];
 let verifiedImages = 0;
 for (const viewport of [
@@ -15,7 +16,7 @@ for (const viewport of [
   const page = await browser.newPage({ viewport });
   page.on('response', response => { if (response.status() >= 400) failures.push(`${viewport.width}px: ${response.status()} ${response.url()}`); });
   page.on('pageerror', error => failures.push(`${viewport.width}px: ${error.message}`));
-  await page.goto('http://127.0.0.1:4173', { waitUntil: 'networkidle' });
+  await page.goto(siteUrl, { waitUntil: 'networkidle' });
   if (viewport.width <= 920) {
     await page.locator('.menu-toggle').click();
     if (!(await page.locator('.site-nav').evaluate(el => el.classList.contains('open')))) failures.push(`${viewport.width}px: mobile navigation did not open`);
@@ -35,6 +36,21 @@ for (const viewport of [
   if (await page.locator('h1').textContent() !== 'A home well-loved deserves a finish to match.') failures.push(`${viewport.width}px: hero heading mismatch`);
   await page.close();
 }
+
+const galleryPage = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+galleryPage.on('pageerror', error => failures.push(`Gallery interaction: ${error.message}`));
+await galleryPage.goto(siteUrl, { waitUntil: 'networkidle' });
+await galleryPage.locator('.gallery-item').first().scrollIntoViewIfNeeded();
+await galleryPage.locator('.gallery-item').first().click();
+await galleryPage.waitForTimeout(200);
+const lightbox = await galleryPage.locator('.lightbox').evaluate(element => ({
+  open: element.open,
+  source: element.querySelector('img').currentSrc,
+  width: element.querySelector('img').naturalWidth,
+}));
+if (!lightbox.open || !lightbox.source || lightbox.width === 0) failures.push('Gallery lightbox did not open with a loaded image');
+await galleryPage.screenshot({ path: 'gallery-lightbox-qa.png' });
+await galleryPage.close();
 await browser.close();
 
 if (failures.length) {

@@ -42,7 +42,8 @@ const lightbox = document.querySelector('.lightbox');
 const lightboxImage = lightbox.querySelector('img');
 document.querySelectorAll('.gallery-item').forEach((item) => item.addEventListener('click', () => {
   const sourceImage = item.querySelector('img');
-  lightboxImage.src = item.dataset.full;
+  const imagePath = item.dataset.full.replace(/^\/+/, '');
+  lightboxImage.src = `${import.meta.env.BASE_URL}${imagePath}`;
   lightboxImage.alt = sourceImage.alt;
   lightbox.showModal();
 }));
