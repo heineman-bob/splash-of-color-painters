@@ -579,6 +579,7 @@ body { background: #f8efe9; }
   border-radius: clamp(30px, 5vw, 90px);
 }
 .gallery { transform: rotate(-.25deg); }
+.gallery.reveal { opacity: 1; transform: rotate(-.25deg); }
 .gallery-item:nth-child(even) { transform: translateY(14px); }
 
 @media (min-width: 921px) {
@@ -656,6 +657,7 @@ body { background: #f8efe9; }
   .palette-notes { display: grid; grid-template-columns: 1fr 1fr; }
   .work, .about { width: calc(100% - 1rem); }
   .gallery { transform: none; }
+  .gallery.reveal { transform: none; }
   .gallery-item:nth-child(even) { transform: none; }
   .testimonials { border-radius: 40px 40px 0 0; }
 }
