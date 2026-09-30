@@ -1,0 +1,8 @@
+node_modules/
+dist/
+.edge-profile/
+.edge-profile*/
+*-preview.png
+*-final.png
+*-check.png
+*-qa.png
